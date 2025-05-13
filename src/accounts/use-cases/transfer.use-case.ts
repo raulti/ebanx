@@ -1,41 +1,43 @@
-import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { AccountRepository } from '../repositories/account.repository';
+import { Account } from '../entities/account.entity';
+import { TransferMapper } from '../mappers/transfer.mapper';
+import { TransferResponse } from '../dto/transfer.respose';
 
 @Injectable()
 export class TransferUseCase {
     constructor(private readonly accountsRepository: AccountRepository) { }
 
-    async execute(origin: string, destination: string, amount: number) {
+    async execute(origin: string, destination: string, amount: number): Promise<TransferResponse> {
+        const originAccount = await this.getAccountOrThrow(origin);
+        const destinationAccount = await this.getOrCreateAccount(destination);
 
-        if (amount <= 0) {
-            throw new BadRequestException();
-        }
+        originAccount.decreaseBalance(amount);
+        destinationAccount.increaseBalance(amount);
 
-        const originAccount = await this.accountsRepository.findById(origin);
-        if (!originAccount) {
+        await this.saveAccounts(originAccount, destinationAccount);
+
+        return TransferMapper.toTransferResponse(originAccount, destinationAccount);
+    }
+
+    private async getAccountOrThrow(accountId: string): Promise<Account> {
+        const account = await this.accountsRepository.findById(accountId);
+        if (!account) {
             throw new NotFoundException();
         }
+        return account;
+    }
 
-        if (originAccount.balance < amount) {
-            throw new BadRequestException();
+    private async getOrCreateAccount(accountId: string): Promise<Account> {
+        let account = await this.accountsRepository.findById(accountId);
+        if (!account) {
+            account = new Account(accountId);
         }
+        return account;
+    }
 
-        let destinationAccount = await this.accountsRepository.findById(destination);
-
-        originAccount.balance -= amount;
-
-        if (!destinationAccount) {
-            destinationAccount = { id: destination, balance: 0 };
-        }
-        destinationAccount.balance += amount;
-
-        // TODO - Criar transaction
+    private async saveAccounts(originAccount: Account, destinationAccount: Account) {
         await this.accountsRepository.save(originAccount);
         await this.accountsRepository.save(destinationAccount);
-
-        return {
-            origin: { id: originAccount.id, balance: originAccount.balance },
-            destination: { id: destinationAccount.id, balance: destinationAccount.balance },
-        };
     }
 }

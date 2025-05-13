@@ -1,17 +1,19 @@
 import { AccountRepository } from "../repositories/account.repository";
+import { Account } from "../entities/account.entity";
+import { DepositResponse } from "../dto/deposit.response";
 
 export class DepositUseCase {
-    constructor(private repository: AccountRepository) { }
+    constructor(private accountRepository: AccountRepository) { }
 
-    async execute(destination: string, amount: number) {
-        let account = await this.repository.findById(destination);
+    async execute(accountId: string, amount: number): Promise<DepositResponse> {
+        let account = await this.accountRepository.findById(accountId);
 
         if (!account) {
-            account = { id: destination, balance: 0 };
+            account = new Account(accountId);
         }
 
-        account.balance += amount;
-        await this.repository.save(account);
+        account.increaseBalance(amount);
+        await this.accountRepository.save(account);
         return { destination: account };
     }
 }
