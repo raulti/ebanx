@@ -9,7 +9,6 @@ export enum EventType {
 export class EventRequest {
     @IsNumber()
     @IsNotEmpty()
-    @MaxLength(12)
     amount: number;
 
     @IsEnum(EventType)
@@ -18,11 +17,9 @@ export class EventRequest {
 
     @ValidateIf((o) => !o.destination)
     @IsString()
-    @MaxLength(15)
     origin?: string;
 
     @ValidateIf((o) => !o.origin)
     @IsString()
-    @MaxLength(15)
     destination?: string;
 }
