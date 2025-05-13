@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { AccountRepository } from '../repositories/account.repository';
 import { WithdrawMapper } from '../mappers/withdraw.mapper';
 

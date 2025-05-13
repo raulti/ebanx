@@ -1,4 +1,4 @@
-import { IsEnum, IsNotEmpty, IsNumber, IsOptional, IsString, MaxLength, ValidateIf } from 'class-validator';
+import { IsEnum, IsNotEmpty, IsNumber, IsString, MaxLength, ValidateIf } from 'class-validator';
 
 export enum EventType {
     DEPOSIT = 'deposit',
