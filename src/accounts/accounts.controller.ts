@@ -1,15 +1,16 @@
-import { Controller, Post, Get, Query, Body } from '@nestjs/common';
+import { Controller, Post, Get, Query, Body, HttpCode } from '@nestjs/common';
 import { AccountsService } from './accounts.service';
 import { EventRequest } from './dto/event.request';
 
-@Controller('accounts')
+@Controller('')
 export class AccountsController {
   constructor(private readonly accountsService: AccountsService) { }
 
   @Post('reset')
+  @HttpCode(200)
   reset() {
     this.accountsService.reset();
-    return {};
+    return 'OK';
   }
 
   @Get('balance')

@@ -4,6 +4,7 @@ import { EventRequest, EventType } from './dto/event.request';
 import { WithdrawUseCase } from './use-cases/withdraw.use-case';
 import { TransferUseCase } from './use-cases/transfer.use-case';
 import { AccountRepository } from './repositories/account.repository';
+import { BalanceUseCase } from './use-cases/balance.use-case';
 
 @Injectable()
 export class AccountsService {
@@ -16,7 +17,7 @@ export class AccountsService {
   }
 
   async getBalance(accountId: string) {
-    const account = await this.repository.findById(accountId);
+    const account = await new BalanceUseCase(this.repository).execute(accountId);
     return account?.balance ?? null;
   }
 
